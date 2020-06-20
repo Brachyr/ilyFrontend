@@ -3,7 +3,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import TestItem from './TestItem';
+import TestItem from '../util/TestItem';
 
 class Teacher extends React.Component {
     constructor(props) {

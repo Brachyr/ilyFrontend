@@ -1,15 +1,9 @@
 import React from 'react';
 import './App.css';
-import {
-    BrowserRouter as Router,
-    Switch,
-    Route,
-    Link
-} from "react-router-dom";
-import Login from "./Login";
-import Teacher from "./Teacher";
-import Student from "./Student";
-import Watcher from "./Watcher";
+import Login from "./components/Login";
+import Teacher from "./components/Teacher";
+import Student from "./components/Student";
+import Watcher from "./components/Watcher";
 
 function App() {
     var role = sessionStorage.getItem('role');

@@ -16,11 +16,11 @@ function TestItem(props) {
                 aria-controls="panel1a-content"
                 id="panel1a-header"
             >
-                <Typography className={classes.heading}>{props.id + " " + props.name}</Typography>
+            <Typography className={classes.heading}>{props.id + " " + props.name}</Typography>
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
-                <RaisedButton label="Start" primary={true} onClick={(event) => this.start(event)} />
-                <RaisedButton label="Edit" style={{marginLeft: 10}} primary={true} onClick={(event) => this.edit(event)} />
+                <RaisedButton label="Start" primary={true} onClick={event => start(event)} />
+                <RaisedButton label="Edit" style={{marginLeft: 10}} primary={true} onClick={event => edit(event)} />
             </ExpansionPanelDetails>
         </ExpansionPanel>
     )
