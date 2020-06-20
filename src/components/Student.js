@@ -4,6 +4,8 @@ import AppBar from 'material-ui/AppBar';
 import Button from '@material-ui/core/Button';
 import RaisedButton from 'material-ui/RaisedButton';
 import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 
 var shuffle = require('shuffle-array');
 
@@ -20,7 +22,7 @@ class Student extends React.Component {
         this.setState(state => ({ timer: state.timer + 1 }));
         if (!sessionStorage.getItem('problemIndex')) {
             this.fetchProblems();
-            if (this.state.problems.length>0) {
+            if (this.state.problems.length > 0) {
                 sessionStorage.setItem('problemIndex', 0);
             }
         }
@@ -32,30 +34,40 @@ class Student extends React.Component {
         })
             .then(res => res.json())
             .then(res => this.setState({
-                problems: res.map(res =>
-                    <div>
-                        <Typography style={style} variant="h4" color="inherit">
-                            {res.question}
-                        </Typography>
-                        {this.getButtons(res)}
-                    </div>)
+                problems: res.map(res => this.getProblem(res))
             }));
     }
 
-    getButtons(res) {
+    getProblem(res) {
         var buttons = [];
-        buttons.push(<RaisedButton label={res.correctAnswer} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
-        buttons.push(<RaisedButton label={res.incorrectAnswer1} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
-        buttons.push(<RaisedButton label={res.incorrectAnswer2} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
-        buttons.push(<RaisedButton label={res.incorrectAnswer3} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.correctAnswer} primary={true} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer1} primary={true} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer2} primary={true} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer3} primary={true} onClick={(event) => this.nextProblem(event)} />)
         shuffle(buttons);
         return (
             <div>
-                {buttons[0]}
-                {buttons[1]}
-                <br />
-                {buttons[2]}
-                {buttons[3]}
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <Paper>
+                            <Typography align="center" variant="h4">
+                                {res.question}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Paper>{buttons[0]}</Paper>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Paper>{buttons[1]}</Paper>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Paper>{buttons[2]}</Paper>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Paper>{buttons[3]}</Paper>
+                    </Grid>
+                </Grid>
             </div>
         )
     }
@@ -85,13 +97,14 @@ class Student extends React.Component {
                             <Button color="inherit" onClick={(event) => this.logout(event)}>Logout</Button>
                         </AppBar>
                     </div>
-                    {this.getProblem()}
+                    <br/>
+                    {this.getNextProblem()}
                 </MuiThemeProvider>
             </div>
         );
     }
 
-    getProblem() {
+    getNextProblem() {
         var index = Number(sessionStorage.getItem('problemIndex'));
         if (index >= 0) {
             return this.state.problems[index];
