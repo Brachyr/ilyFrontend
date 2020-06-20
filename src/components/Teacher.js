@@ -18,9 +18,7 @@ class Teacher extends React.Component {
             method: 'GET'
         })
             .then(res => res.json())
-            .then(
-                res => this.setState({ tests: res })
-            )
+            .then(res => this.setState({ tests: res }))
     }
 
     render() {
