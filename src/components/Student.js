@@ -13,14 +13,16 @@ class Student extends React.Component {
         this.state = {
             timer: 0,
             problems: []
-
         };
     }
 
     tick() {
         this.setState(state => ({ timer: state.timer + 1 }));
-        if (!this.state.problems.length) {
-            this.fetchProblems()
+        if (!sessionStorage.getItem('problemIndex')) {
+            this.fetchProblems();
+            if (this.state.problems.length>0) {
+                sessionStorage.setItem('problemIndex', 0);
+            }
         }
     }
 
@@ -37,15 +39,15 @@ class Student extends React.Component {
                         </Typography>
                         {this.getButtons(res)}
                     </div>)
-            }))
+            }));
     }
 
     getButtons(res) {
         var buttons = [];
-        buttons.push(<RaisedButton label={res.correctAnswer} primary={true} style={style} onClick={(event) => this.handleClick(event)} />)
-        buttons.push(<RaisedButton label={res.incorrectAnswer1} primary={true} style={style} onClick={(event) => this.handleClick(event)} />)
-        buttons.push(<RaisedButton label={res.incorrectAnswer2} primary={true} style={style} onClick={(event) => this.handleClick(event)} />)
-        buttons.push(<RaisedButton label={res.incorrectAnswer3} primary={true} style={style} onClick={(event) => this.handleClick(event)} />)
+        buttons.push(<RaisedButton label={res.correctAnswer} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton label={res.incorrectAnswer1} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton label={res.incorrectAnswer2} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton label={res.incorrectAnswer3} primary={true} style={style} onClick={(event) => this.nextProblem(event)} />)
         shuffle(buttons);
         return (
             <div>
@@ -56,6 +58,10 @@ class Student extends React.Component {
                 {buttons[3]}
             </div>
         )
+    }
+
+    nextProblem() {
+        sessionStorage.setItem('problemIndex', Number(sessionStorage.getItem('problemIndex')) + 1);
     }
 
     componentDidMount() {
@@ -79,10 +85,17 @@ class Student extends React.Component {
                             <Button color="inherit" onClick={(event) => this.logout(event)}>Logout</Button>
                         </AppBar>
                     </div>
-                    {this.state.problems[0]}
+                    {this.getProblem()}
                 </MuiThemeProvider>
             </div>
         );
+    }
+
+    getProblem() {
+        var index = Number(sessionStorage.getItem('problemIndex'));
+        if (index >= 0) {
+            return this.state.problems[index];
+        }
     }
 
     logout(event) {
