@@ -21,6 +21,7 @@ class Login extends React.Component {
                         isLoaded: true,
                         user: result
                     });
+                localStorage.setItem('user', this.state.user.username);
                 },
                 // Note: it's important to handle errors here
                 // instead of a catch() block so that we don't swallow
@@ -49,13 +50,6 @@ class Login extends React.Component {
                         <input type="text" name="username"/>
                         <br/>Jelszó<br/>
                         <input type="password" name="password" required/>
-                        {/*<input type="text" name="fullName" required/>
-                        <br/>
-                        <select name="role">
-                            <option value="1">Tanár</option>
-                            <option value="2">Diák</option>
-                        </select>
-                        <br/><br/>*/}
                         <input type="submit" value="Hozzáad"/>
                     </form>
                 </div>

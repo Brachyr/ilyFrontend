@@ -20,7 +20,7 @@ function App() {
                           <Link to="/">Home</Link>
                       </li>
                       <li>
-                          <Link to="/login">Login</Link>
+                          <Link to="/login">{localStorage.getItem('user')}</Link>
                       </li>
                       <li>
                           <Link to="/test">Test</Link>
