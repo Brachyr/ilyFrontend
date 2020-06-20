@@ -10,56 +10,23 @@ import Login from "./Login";
 import Test from "./Test";
 
 function App() {
-    const students = [{name:'Orsi'}, {name: 'Zsolti'}];
-  return (
-      <Router>
-          <div>
-              <nav>
-                  <ul>
-                      <li>
-                          <Link to="/">Home</Link>
-                      </li>
-                      <li>
-                          <Link to="/login">{localStorage.getItem('user')}</Link>
-                      </li>
-                      <li>
-                          <Link to="/test">Test</Link>
-                      </li>
-                      <li>
-                          <Link to="/users">Users</Link>
-                      </li>
-                  </ul>
-              </nav>
-
-              {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
-              <Switch>
-                  <Route path="/login">
-                      <Login />
-                  </Route>
-                  <Route path="/test">
-                      <Test />
-                  </Route>
-                  <Route path="/users">
-                      <Users />
-                  </Route>
-                  <Route path="/">
-                      <Home />
-                  </Route>
-              </Switch>
-          </div>
-      </Router>
-  );
+    var role = sessionStorage.getItem('role');
+    switch(role) {
+        case 'teacher': return <Teacher/>;
+        case 'student': return <Student/>;
+        case 'watcher': return <Watcher/>;
+        default: return <Login/>;
+    }
 }
 
-function Home() {
-    return <h2>Home</h2>;
+function Teacher() {
+    return <h2>Home(teacher) {sessionStorage.getItem('user')}</h2>;
 }
-
-
-
-function Users() {
-    return <h2>Users</h2>;
+function Student() {
+    return <h2>Home(student) {sessionStorage.getItem('user')}</h2>;
+}
+function Watcher() {
+    return <h2>Home(watcher) {sessionStorage.getItem('user')}</h2>;
 }
 
 export default App;
