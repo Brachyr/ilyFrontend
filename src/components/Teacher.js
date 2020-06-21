@@ -4,12 +4,14 @@ import AppBar from 'material-ui/AppBar';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import TestItem from '../util/TestItem';
+import { MyAdmin } from '../MyAdmin';
 
 class Teacher extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            tests: []
+            tests: [],
+            admin: false
         }
     }
 
@@ -22,7 +24,7 @@ class Teacher extends React.Component {
     }
 
     render() {
-        return (
+        return this.state.admin ? <MyAdmin/> : (
             <div>
                 <MuiThemeProvider>
                     <div>
@@ -30,6 +32,7 @@ class Teacher extends React.Component {
                             <Typography variant="h3" color="inherit">
                                 {sessionStorage.getItem('user')}
                             </Typography>
+                            <Button color="inherit" onClick={event => this.setState(state => ({admin: !state.admin}))}>Admin</Button>
                             <Button color="inherit" onClick={(event) => this.logout(event)}>Logout</Button>
                         </AppBar>
                         <br />
@@ -48,10 +51,10 @@ class Teacher extends React.Component {
     tests() {
         return (
             <div>
-                <Typography style={{marginLeft: 15}} variant="h4" color="inherit">
+                <Typography style={{ marginLeft: 15 }} variant="h4" color="inherit">
                     Tesztek
                 </Typography>
-                <br/>
+                <br />
                 {this.state.tests.map(test => <TestItem id={test.id} name={test.name} />)}
             </div>
         );
