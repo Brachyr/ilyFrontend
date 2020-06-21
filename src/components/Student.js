@@ -24,8 +24,18 @@ class Student extends React.Component {
             this.fetchProblems();
             if (this.state.problems.length > 0) {
                 sessionStorage.setItem('problemIndex', 0);
+                sessionStorage.setItem('countdown', 69);
             }
         }
+        var countdown = Number(sessionStorage.getItem('countdown'));
+        if (countdown > 0) {
+            sessionStorage.setItem('countdown', countdown - 1)
+        }
+    }
+
+    stop() {
+        this.setState({problems: []});
+        sessionStorage.setItem('countdown', 0);
     }
 
     fetchProblems() {
@@ -41,16 +51,16 @@ class Student extends React.Component {
     getProblem(res) {
         var buttons = [];
         buttons.push(<RaisedButton fullWidth={true} label={res.correctAnswer} primary={true} onClick={(event) => this.nextProblem(event)} />)
-        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer1} primary={true} onClick={(event) => this.nextProblem(event)} />)
-        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer2} primary={true} onClick={(event) => this.nextProblem(event)} />)
-        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer3} primary={true} onClick={(event) => this.nextProblem(event)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer1} primary={true} onClick={(event) => this.stop(event)} />)
+        buttons.push(<RaisedButton disabled={sessionStorage.getItem('applyFifty')} fullWidth={true} label={res.incorrectAnswer2} primary={true} onClick={(event) => this.stop(event)} />)
+        buttons.push(<RaisedButton disabled={sessionStorage.getItem('applyFifty')} fullWidth={true} label={res.incorrectAnswer3} primary={true} onClick={(event) => this.stop(event)} />)
         shuffle(buttons);
         return (
             <div>
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <Paper>
-                            <Typography align="center" variant="h4">
+                            <Typography style={{backgroundColor: 'rgb(0, 140, 160)', color: 'white'}} align="center" variant="h4">
                                 {res.question}
                             </Typography>
                         </Paper>
@@ -74,6 +84,9 @@ class Student extends React.Component {
 
     nextProblem() {
         sessionStorage.setItem('problemIndex', Number(sessionStorage.getItem('problemIndex')) + 1);
+        sessionStorage.removeItem('applyFifty');
+        sessionStorage.setItem('countdown', 69);
+        window.location.reload(false);
     }
 
     componentDidMount() {
@@ -97,16 +110,82 @@ class Student extends React.Component {
                             <Button color="inherit" onClick={(event) => this.logout(event)}>Logout</Button>
                         </AppBar>
                     </div>
-                    <br/>
+                    <br />
                     {this.getNextProblem()}
+                    <br />
+                    {this.getInfo()}
                 </MuiThemeProvider>
             </div>
         );
     }
 
+    separatorText() {
+        if (Number(sessionStorage.getItem('countdown'))>0) {
+            return "In progress";
+        }
+        return "Finished";
+    }
+
+    getInfo() {
+        return (
+            <div>
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <Paper style={{backgroundColor: 'gray', color: 'white'}}>
+                            <Typography align="center" variant="h4">
+                                {this.separatorText()}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Paper>
+                            <RaisedButton fullWidth={true} label={"Score: " + (Number(sessionStorage.getItem('problemIndex')) + 1) + "/10"} primary={true} />
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Paper style={{backgroundColor: Number(sessionStorage.getItem('countdown'))>0 ? 'green' : 'red', color: 'white'}}>
+                            <Typography align="center" variant="h1">
+                                {sessionStorage.getItem('countdown')}
+                            </Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={4}>
+                        <Paper>
+                            <RaisedButton fullWidth={true} label="Stop" primary={true} onClick={(event) => this.stop(event)} />
+                        </Paper>
+                    </Grid>
+                    <Grid item xs>
+                        <Paper><RaisedButton disabled={sessionStorage.getItem('fiftyUsed')} fullWidth={true} label="50/50" primary={true} onClick={event => this.fifty(event)} /></Paper>
+                    </Grid>
+                    <Grid item xs>
+                        <Paper><RaisedButton disabled={sessionStorage.getItem('watchers')} fullWidth={true} label="peeps" primary={true} onClick={event => this.askWatchers(event)} /></Paper>
+                    </Grid>
+                    <Grid item xs>
+                        <Paper><RaisedButton disabled={sessionStorage.getItem('friend')} fullWidth={true} label="friend" primary={true} onClick={event => this.askFriend(event)} /></Paper>
+                    </Grid>
+                </Grid>
+            </div>
+        );
+    }
+
+    fifty() {
+        sessionStorage.setItem('fiftyUsed', true);
+        sessionStorage.setItem('applyFifty', true);
+        window.location.reload(false);
+    }
+
+    askWatchers() {
+        sessionStorage.setItem('watchers', true);
+    }
+
+    askFriend() {
+        sessionStorage.setItem('friend', true);
+    }
+
     getNextProblem() {
         var index = Number(sessionStorage.getItem('problemIndex'));
-        if (index >= 0) {
+        var timeLeft = Number(sessionStorage.getItem('countdown'));
+        if (index >= 0 && timeLeft>0) {
             return this.state.problems[index];
         }
     }
@@ -117,7 +196,4 @@ class Student extends React.Component {
     }
 }
 
-const style = {
-    margin: 10
-};
 export default Student;

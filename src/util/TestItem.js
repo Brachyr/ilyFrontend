@@ -20,7 +20,6 @@ function TestItem(props) {
             </ExpansionPanelSummary>
             <ExpansionPanelDetails>
                 <RaisedButton label="Start" primary={true} onClick={event => start(event)} />
-                <RaisedButton label="Edit" style={{marginLeft: 10}} primary={true} onClick={event => edit(event)} />
             </ExpansionPanelDetails>
         </ExpansionPanel>
     )
