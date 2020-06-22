@@ -26,7 +26,7 @@ class Watcher extends React.Component {
             this.fetchProblems();
             if (this.state.problems.length > 0) {
                 sessionStorage.setItem('problemIndex', 0);
-                sessionStorage.setItem('countdown', 5);
+                sessionStorage.setItem('countdown', 30);
             }
         }
         var countdown = Number(sessionStorage.getItem('countdown'));

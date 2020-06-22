@@ -6,6 +6,11 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import MenuItem from '@material-ui/core/MenuItem';
 
 var shuffle = require('shuffle-array');
 
@@ -14,7 +19,9 @@ class Student extends React.Component {
         super(props);
         this.state = {
             timer: 0,
-            problems: []
+            problems: [],
+            answers: [],
+            watchers: true
         };
     }
 
@@ -34,8 +41,10 @@ class Student extends React.Component {
     }
 
     stop() {
-        this.setState({problems: []});
         sessionStorage.setItem('countdown', 0);
+        sessionStorage.removeItem('friendAnswer');
+        sessionStorage.removeItem('watcherAnswers');
+        this.setState({ problems: [] });
     }
 
     fetchProblems() {
@@ -60,7 +69,7 @@ class Student extends React.Component {
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
                         <Paper>
-                            <Typography style={{backgroundColor: 'rgb(0, 140, 160)', color: 'white'}} align="center" variant="h4">
+                            <Typography style={{ backgroundColor: 'rgb(0, 140, 160)', color: 'white' }} align="center" variant="h4">
                                 {res.question}
                             </Typography>
                         </Paper>
@@ -85,6 +94,8 @@ class Student extends React.Component {
     nextProblem() {
         sessionStorage.setItem('problemIndex', Number(sessionStorage.getItem('problemIndex')) + 1);
         sessionStorage.removeItem('applyFifty');
+        sessionStorage.removeItem('friendAnswer');
+        sessionStorage.removeItem('watcherAnswers');
         sessionStorage.setItem('countdown', 69);
         window.location.reload(false);
     }
@@ -114,13 +125,66 @@ class Student extends React.Component {
                     {this.getNextProblem()}
                     <br />
                     {this.getInfo()}
+                    <br />
+                    {this.getWatcherList()}
+                    <Typography variant="h5" color="inherit">
+                        {sessionStorage.getItem('friendAnswer')}
+                    </Typography>
+                    <br/>
+                    <Typography variant="h5" color="inherit">
+                        {this.getWatcherAnswers()}
+                    </Typography>
                 </MuiThemeProvider>
             </div>
         );
     }
 
+    getWatcherAnswers() {
+        var answers = sessionStorage.getItem('watcherAnswers');
+        if (answers) {
+            answers = answers.split(',');
+            var counts = {};
+            for (var i = 0; i < answers.length; i++) {
+                var num = answers[i];
+                counts[num] = counts[num] ? counts[num] + 1 : 1;
+            }
+            console.log(counts);
+            return (
+                <div>Audience answers:
+                    {Object.keys(counts).map(key => (
+                        <div>
+                            {key + ": " + counts[key]}
+                        </div>
+                    ))}
+                </div>);
+        }
+    }
+
+    getWatcherList() {
+        if (this.state.watchers.length) {
+            return (
+                <div>
+                    <FormControl>
+                        <InputLabel id="watchers">Answers</InputLabel>
+                        <Select labelId="watchers" id="watchers-select" onChange={this.selectFriend}>
+                            {this.state.watchers.map(res => <MenuItem value={res.user + " answered: " + res.answer}>{res.user}</MenuItem>)}
+                        </Select>
+                        <FormHelperText>Select a user to view the answer</FormHelperText>
+                    </FormControl>
+                </div>
+            )
+        }
+    }
+
+    selectFriend = (event) => {
+        console.log(event);
+        sessionStorage.setItem('friend', true);
+        sessionStorage.setItem('friendAnswer', event.target.value);
+        window.location.reload(false);
+    };
+
     separatorText() {
-        if (Number(sessionStorage.getItem('countdown'))>0) {
+        if (Number(sessionStorage.getItem('countdown')) > 0) {
             return "In progress";
         }
         return "Finished";
@@ -131,7 +195,7 @@ class Student extends React.Component {
             <div>
                 <Grid container spacing={3}>
                     <Grid item xs={12}>
-                        <Paper style={{backgroundColor: 'gray', color: 'white'}}>
+                        <Paper style={{ backgroundColor: 'gray', color: 'white' }}>
                             <Typography align="center" variant="h4">
                                 {this.separatorText()}
                             </Typography>
@@ -143,7 +207,7 @@ class Student extends React.Component {
                         </Paper>
                     </Grid>
                     <Grid item xs={4}>
-                        <Paper style={{backgroundColor: Number(sessionStorage.getItem('countdown'))>0 ? 'green' : 'red', color: 'white'}}>
+                        <Paper style={{ backgroundColor: Number(sessionStorage.getItem('countdown')) > 0 ? 'green' : 'red', color: 'white' }}>
                             <Typography align="center" variant="h1">
                                 {sessionStorage.getItem('countdown')}
                             </Typography>
@@ -174,18 +238,30 @@ class Student extends React.Component {
         window.location.reload(false);
     }
 
-    askWatchers() {
-        sessionStorage.setItem('watchers', true);
+    askFriend() {
+        fetch("http://localhost:8090/answer", {
+            method: 'GET'
+        })
+            .then(res => res.json())
+            .then(res => this.setState({ watchers: res }));
     }
 
-    askFriend() {
-        sessionStorage.setItem('friend', true);
+    askWatchers() {
+        sessionStorage.setItem('watchers', true);
+        fetch("http://localhost:8090/answer", {
+            method: 'GET'
+        })
+            .then(res => res.json())
+            .then(res => {
+                sessionStorage.setItem('watcherAnswers', res.map(res => res.answer));
+                window.location.reload(false);
+            });
     }
 
     getNextProblem() {
         var index = Number(sessionStorage.getItem('problemIndex'));
         var timeLeft = Number(sessionStorage.getItem('countdown'));
-        if (index >= 0 && timeLeft>0) {
+        if (index >= 0 && timeLeft > 0) {
             return this.state.problems[index];
         }
     }
