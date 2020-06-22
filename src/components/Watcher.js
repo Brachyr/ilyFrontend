@@ -6,6 +6,8 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import axios from 'axios';
+import qs from 'qs';
 
 var shuffle = require('shuffle-array');
 
@@ -47,10 +49,10 @@ class Watcher extends React.Component {
 
     getProblem(res) {
         var buttons = [];
-        buttons.push(<RaisedButton fullWidth={true} label={res.correctAnswer} primary={true} onClick={event => this.nextProblem(res)} />)
-        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer1} primary={true} onClick={event => this.nextProblem(res)} />)
-        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer2} primary={true} onClick={event => this.nextProblem(res)} />)
-        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer3} primary={true} onClick={event => this.nextProblem(res)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.correctAnswer} primary={true} onClick={event => this.nextProblem(res, res.correctAnswer)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer1} primary={true} onClick={event => this.nextProblem(res, res.incorrectAnswer1)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer2} primary={true} onClick={event => this.nextProblem(res, res.incorrectAnswer2)} />)
+        buttons.push(<RaisedButton fullWidth={true} label={res.incorrectAnswer3} primary={true} onClick={event => this.nextProblem(res, res.incorrectAnswer3)} />)
         shuffle(buttons);
         return (
             <div>
@@ -79,17 +81,16 @@ class Watcher extends React.Component {
         )
     }
 
-    nextProblem(current) {
+    nextProblem(current, answer) {
         sessionStorage.setItem('problemIndex', Number(sessionStorage.getItem('problemIndex')) + 1);
         sessionStorage.setItem('countdown', 30);
-        var apiURL = "http://localhost:8090/login";
-        axios.post(apiURL, qs.stringify({ username: this.state.username, password: this.state.password }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
-            .then(function (response) {
-                console.log(response);
-                sessionStorage.setItem('user', response.data.username)
-                sessionStorage.setItem('role', response.data.role)
-                window.location.reload(false);
-            });
+        if (current) {
+            var apiURL = "http://localhost:8090/answer";
+            axios.post(apiURL, qs.stringify({ answer: answer, problemId: current.id, userId: sessionStorage.getItem('user_id') }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } })
+                .then(function (response) {
+                    console.log(response);
+                });
+        }
     }
 
     componentDidMount() {
